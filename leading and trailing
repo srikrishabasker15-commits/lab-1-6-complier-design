@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+char productions[10][10];
+char leading[10][10], trailing[10][10];
+int n;
+
+// Function to find LEADING
+void findLeading(char ch, int index) {
+    for (int i = 0; i < n; i++) {
+        if (productions[i][0] == ch) {
+            // If first symbol is terminal
+            if (!isupper(productions[i][2])) {
+                leading[index][strlen(leading[index])] = productions[i][2];
+            }
+            else {
+                // If first symbol is non-terminal
+                findLeading(productions[i][2], index);
+            }
+
+            // If second symbol is terminal
+            if (productions[i][3] != '\0' && !isupper(productions[i][3])) {
+                leading[index][strlen(leading[index])] = productions[i][3];
+            }
+        }
+    }
+}
+
+// Function to find TRAILING
+void findTrailing(char ch, int index) {
+    for (int i = 0; i < n; i++) {
+        if (productions[i][0] == ch) {
+            int len = strlen(productions[i]);
+
+            // Last symbol is terminal
+            if (!isupper(productions[i][len - 1])) {
+                trailing[index][strlen(trailing[index])] = productions[i][len - 1];
+            }
+            else {
+                findTrailing(productions[i][len - 1], index);
+            }
+
+            // Second last symbol is terminal
+            if (len > 3 && !isupper(productions[i][len - 2])) {
+                trailing[index][strlen(trailing[index])] = productions[i][len - 2];
+            }
+        }
+    }
+}
+
+int main() {
+    printf("Enter number of productions: ");
+    scanf("%d", &n);
+
+    printf("Enter productions (E=E+T format):\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%s", productions[i]);
+    }
+
+    for (int i = 0; i < n; i++) {
+        findLeading(productions[i][0], i);
+        findTrailing(productions[i][0], i);
+    }
+
+    printf("\nLEADING:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%c : { ", productions[i][0]);
+        for (int j = 0; j < strlen(leading[i]); j++) {
+            printf("%c ", leading[i][j]);
+        }
+        printf("}\n");
+    }
+
+    printf("\nTRAILING:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%c : { ", productions[i][0]);
+        for (int j = 0; j < strlen(trailing[i]); j++) {
+            printf("%c ", trailing[i][j]);
+        }
+        printf("}\n");
+    }
+
+    return 0;
+}
